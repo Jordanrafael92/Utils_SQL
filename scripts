@@ -1,2 +1,17 @@
-select sysdate from dual
+-- #################################################################################
+-- ############# Eliminates sessions that are not connected PLSQL #################
+
+begin
+  for i in (select * from v$session where program != 'plsqldev.exe') loop
+    begin
+      rdsadmin.rdsadmin_util.kill(sid    => i.sid,
+                                  serial => i.serial#,
+                                  method => 'IMMEDIATE');
+    exception
+      when others then
+        null;
+    end;
+  end loop;
+end;
+
 
