@@ -15,3 +15,19 @@ begin
 end;
 
 
+declare
+  comando varchar2(1000);
+begin
+  for i in (select *
+              from v$session
+             where upper(program) != upper('plsqldev.exe')) loop
+    begin
+      comando := 'alter system kill session ''' || i.sid || ',' ||
+                 i.serial# || ''' immediate';
+      execute immediate comando;
+    exception
+      when others then
+        dbms_output.put_line(comando || ' - ' || sqlerrm);
+    end;
+  end loop;
+end;
